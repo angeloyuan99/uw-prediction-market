@@ -9,6 +9,14 @@ type Leader = {
   tokens: number;
 };
 
+type ProfileWithUser = {
+  id: string;
+  tokens: number;
+  users: {
+    email: string;
+  }[];
+};
+
 export default function LeaderboardPage() {
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +32,9 @@ export default function LeaderboardPage() {
       if (error) {
         console.error("Error loading leaderboard:", error);
       } else if (data) {
-        // Type the data properly
-        const formatted: Leader[] = data.map((row) => ({
+        const formatted: Leader[] = (data as ProfileWithUser[]).map((row) => ({
           id: row.id,
-          email: (row as any).users?.email || "Unknown",
+          email: row.users?.[0]?.email || "Unknown", // <-- use [0] safely
           tokens: row.tokens,
         }));
 
