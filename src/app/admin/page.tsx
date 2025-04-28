@@ -4,30 +4,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-const router = useRouter();
-
-useEffect(() => {
-  async function checkAdmin() {
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-
-    if (!user || !user.email) {
-      router.push("/login");
-      return;
-    }
-
-    // Change this to YOUR email address!
-    const adminEmail = "a38yuan@uwaterloo.ca";
-
-    if (user.email !== adminEmail) {
-      router.push("/");
-    }
-  }
-
-  checkAdmin();
-}, [router]);
-
-
 type Market = {
   id: string;
   question: string;
@@ -37,9 +13,30 @@ type Market = {
 };
 
 export default function AdminPage() {
+  const router = useRouter(); // ✅ Move inside component
   const [markets, setMarkets] = useState<Market[]>([]);
   const [selectedWinners, setSelectedWinners] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    async function checkAdmin() {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+
+      if (!user || !user.email) {
+        router.push("/login");
+        return;
+      }
+
+      const adminEmail = "a38yuan@uwaterloo.ca";
+
+      if (user.email !== adminEmail) {
+        router.push("/");
+      }
+    }
+
+    checkAdmin();
+  }, [router]); // ✅ Now correct
 
   useEffect(() => {
     async function fetchMarkets() {
@@ -66,7 +63,6 @@ export default function AdminPage() {
       return;
     }
 
-    // Mark market as resolved
     const { error: updateError } = await supabase
       .from("markets")
       .update({
@@ -80,14 +76,12 @@ export default function AdminPage() {
       return;
     }
 
-    // Trigger payout
     const { error: payoutError } = await supabase.rpc("payout_market", { p_market_id: marketId });
 
     if (payoutError) {
       setMessage("Failed to payout: " + payoutError.message);
     } else {
       setMessage("Market resolved and payouts completed!");
-      // Refresh the market list
       setMarkets(markets.filter((m) => m.id !== marketId));
     }
   };
