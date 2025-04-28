@@ -13,7 +13,7 @@ type Market = {
 };
 
 export default function AdminPage() {
-  const router = useRouter(); // ✅ Move inside component
+  const router = useRouter(); 
   const [markets, setMarkets] = useState<Market[]>([]);
   const [selectedWinners, setSelectedWinners] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
@@ -36,7 +36,7 @@ export default function AdminPage() {
     }
 
     checkAdmin();
-  }, [router]); // ✅ Now correct
+  }, [router]);
 
   useEffect(() => {
     async function fetchMarkets() {

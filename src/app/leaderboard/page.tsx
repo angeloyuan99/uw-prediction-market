@@ -23,10 +23,11 @@ export default function LeaderboardPage() {
 
       if (error) {
         console.error("Error loading leaderboard:", error);
-      } else {
-        const formatted = data.map((row: any) => ({
+      } else if (data) {
+        // Type the data properly
+        const formatted: Leader[] = data.map((row) => ({
           id: row.id,
-          email: row.users?.email || "Unknown",
+          email: (row as any).users?.email || "Unknown",
           tokens: row.tokens,
         }));
 
