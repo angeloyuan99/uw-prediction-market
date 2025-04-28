@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -9,6 +9,17 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    async function checkSession() {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.push("/markets");
+      }
+    }
+    checkSession();
+  }, [router]);
 
   const handleRegister = async () => {
     const { error } = await supabase.auth.signUp({
@@ -19,7 +30,7 @@ export default function RegisterPage() {
     if (error) {
       setMessage("Registration failed: " + error.message);
     } else {
-      setMessage("Registration successful! Check your email for confirmation.");
+      setMessage("Registration successful! Please check your email to confirm.");
       setTimeout(() => router.push("/login"), 3000);
     }
   };
